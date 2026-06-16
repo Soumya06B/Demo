@@ -1,15 +1,23 @@
-import apiClient from './apiClient';
+import apiClient from './api';
 
 export const authService = {
-  login(credentials) {
-    return apiClient.post('/auth/login', credentials);
-  },
-
   register(payload) {
     return apiClient.post('/auth/register', payload);
   },
 
+  verifyRegisterOtp(payload) {
+    return apiClient.post('/auth/verify-register-otp', payload);
+  },
+
+  login(credentials) {
+    return apiClient.post('/auth/login', credentials);
+  },
+
+  verifyLoginOtp(payload) {
+    return apiClient.post('/auth/verify-login-otp', payload);
+  },
+
   profile() {
-    return apiClient.get('/auth/me');
+    return apiClient.get('/auth/profile');
   },
 };

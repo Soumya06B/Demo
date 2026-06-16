@@ -1,6 +1,7 @@
 import { createContext, useCallback, useMemo, useState } from 'react';
 import { STORAGE_KEYS } from '../constants/appConstants';
 import { storage } from '../utils/storage';
+import { tokenStorage } from '../utils/tokenStorage';
 
 export const AuthContext = createContext(null);
 
@@ -15,14 +16,19 @@ export function AuthProvider({ children }) {
     setUser(nextUser);
     setToken(nextToken);
     storage.set(STORAGE_KEYS.AUTH_USER, nextUser);
-    storage.set(STORAGE_KEYS.AUTH_TOKEN, nextToken);
+    tokenStorage.setToken(nextToken);
+  }, []);
+
+  const updateUser = useCallback((nextUser) => {
+    setUser(nextUser);
+    storage.set(STORAGE_KEYS.AUTH_USER, nextUser);
   }, []);
 
   const logout = useCallback(() => {
     setUser(null);
     setToken(null);
     storage.remove(STORAGE_KEYS.AUTH_USER);
-    storage.remove(STORAGE_KEYS.AUTH_TOKEN);
+    tokenStorage.removeToken();
   }, []);
 
   const value = useMemo(
@@ -31,9 +37,10 @@ export function AuthProvider({ children }) {
       token,
       isAuthenticated: Boolean(token),
       login,
+      updateUser,
       logout,
     }),
-    [login, logout, token, user],
+    [login, logout, token, updateUser, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

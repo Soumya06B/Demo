@@ -1,9 +1,11 @@
-export const APP_NAME = 'React Production Frontend';
+export const APP_NAME = import.meta.env.VITE_APP_NAME || 'Auth Demo App';
 
 export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
+  VERIFY_REGISTER_OTP: '/verify-register-otp',
+  VERIFY_LOGIN_OTP: '/verify-login-otp',
   DASHBOARD: '/dashboard',
 };
 

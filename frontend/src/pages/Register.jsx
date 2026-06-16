@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { ROUTES } from '../constants/appConstants';
+import { authService } from '../services/authService';
 
 function Register() {
   const navigate = useNavigate();
@@ -13,10 +14,14 @@ function Register() {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const onSubmit = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    toast.success('Account created. Please log in.');
-    navigate(ROUTES.LOGIN);
+  const onSubmit = async (values) => {
+    try {
+      const { data } = await authService.register(values);
+      toast.success(data.message || 'OTP sent to email');
+      navigate(ROUTES.VERIFY_REGISTER_OTP, { state: { email: values.email } });
+    } catch (error) {
+      toast.error(error.message || 'Registration failed');
+    }
   };
 
   return (
@@ -28,7 +33,7 @@ function Register() {
           <Input label="Name" placeholder="Your name" error={errors.name?.message} {...register('name', { required: 'Name is required' })} />
           <Input label="Email" type="email" placeholder="you@example.com" error={errors.email?.message} {...register('email', { required: 'Email is required' })} />
           <Input label="Password" type="password" placeholder="Create password" error={errors.password?.message} {...register('password', { required: 'Password is required', minLength: { value: 8, message: 'Use at least 8 characters' } })} />
-          <Button type="submit" isLoading={isSubmitting}>Create Account</Button>
+          <Button type="submit" isLoading={isSubmitting}>Send Register OTP</Button>
         </form>
         <p className="mt-5 text-center text-sm text-slate-600">
           Already have an account? <Link className="font-semibold text-[#1f6feb]" to={ROUTES.LOGIN}>Login</Link>

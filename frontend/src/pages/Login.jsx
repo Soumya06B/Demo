@@ -1,15 +1,13 @@
 import { useForm } from 'react-hook-form';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { ROUTES } from '../constants/appConstants';
-import { useAuth } from '../hooks/useAuth';
+import { authService } from '../services/authService';
 
 function Login() {
-  const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const {
     register,
     handleSubmit,
@@ -17,10 +15,13 @@ function Login() {
   } = useForm();
 
   const onSubmit = async (values) => {
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    login({ token: 'demo-token', user: { name: 'Demo User', email: values.email } });
-    toast.success('Logged in successfully');
-    navigate(location.state?.from?.pathname || ROUTES.DASHBOARD, { replace: true });
+    try {
+      const { data } = await authService.login(values);
+      toast.success(data.message || 'Login OTP sent to email');
+      navigate(ROUTES.VERIFY_LOGIN_OTP, { state: { email: values.email } });
+    } catch (error) {
+      toast.error(error.message || 'Login failed');
+    }
   };
 
   return (
@@ -31,7 +32,7 @@ function Login() {
         <form className="mt-6 grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <Input label="Email" type="email" placeholder="you@example.com" error={errors.email?.message} {...register('email', { required: 'Email is required' })} />
           <Input label="Password" type="password" placeholder="Enter password" error={errors.password?.message} {...register('password', { required: 'Password is required' })} />
-          <Button type="submit" isLoading={isSubmitting}>Login</Button>
+          <Button type="submit" isLoading={isSubmitting}>Send Login OTP</Button>
         </form>
       </div>
     </section>
